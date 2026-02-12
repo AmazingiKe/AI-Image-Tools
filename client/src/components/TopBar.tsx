@@ -14,7 +14,8 @@ import {
   Shield,
   MessageSquare,
   UserCircle,
-  PenTool
+  PenTool,
+  Code
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -33,6 +34,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     { id: '/', label: '工作台', icon: LayoutDashboard },
     { id: '/agent', label: '创意工作台', icon: MessageSquare },
     { id: '/history', label: '历史库', icon: History },
+    { id: '/api-docs', label: 'API', icon: Code },
   ];
 
   return (

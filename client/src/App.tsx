@@ -26,6 +26,8 @@ import { TopBar } from './components/TopBar';
 import { IdleAnimation } from './components/IdleAnimation';
 import { SettingsPage } from './pages/SettingsPage';
 import { AgentPage } from './pages/Agent.tsx';
+import { ApiDocs } from './pages/ApiDocs';
+import { ModelSelector } from './components/ModelSelector';
 import type { Task, AppConfig, NewAppConfig, ModelInfo, GenerationGroup } from './types';
 
 // --- Components ---
@@ -232,38 +234,14 @@ function GeneratorPage({
                   </div>
                 </div>
 
-                {/* 模型选择 */}
+                {/* 模型选择 - 使用新组件 */}
                 <div className="mt-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block px-1">生图模型</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {availableModels?.length > 0 ? (
-                      availableModels.map((m: ModelInfo) => (
-                        <button
-                          key={m.id}
-                          onClick={() => setModel(m.id)}
-                          disabled={!m.enabled}
-                          className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${
-                            model === m.id
-                            ? 'bg-black dark:bg-white text-white dark:text-black'
-                            : m.enabled
-                              ? 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
-                              : 'bg-gray-100 dark:bg-white/5 text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span>{m.name}</span>
-                            {m.provider !== 'gemini' && (
-                              <span className="text-[8px] opacity-60 px-1.5 py-0.5 bg-white/20 dark:bg-black/20 rounded">
-                                {m.provider}
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="text-gray-400 text-xs">加载模型中...</div>
-                    )}
-                  </div>
+                  <ModelSelector
+                    models={availableModels}
+                    selectedModel={model}
+                    onSelect={setModel}
+                  />
                 </div>
               </motion.div>
             )}
@@ -884,7 +862,14 @@ function AppContent() {
             />
           } />
           <Route path="/history" element={<HistoryPage history={history} onClear={handleClearHistory} />} />
-          <Route path="/settings" element={<SettingsPage config={config} onUpdateConfig={handleUpdateConfig} />} />
+          <Route path="/settings" element={
+            <SettingsPage
+              config={config}
+              onUpdateConfig={handleUpdateConfig}
+              models={availableModels}
+            />
+          } />
+          <Route path="/api-docs" element={<ApiDocs models={availableModels} />} />
           <Route path="/agent" element={<AgentPage isDark={isDark} />} />
         </Routes>
       </div>

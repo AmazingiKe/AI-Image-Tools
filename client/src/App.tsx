@@ -26,7 +26,7 @@ import { TopBar } from './components/TopBar';
 import { IdleAnimation } from './components/IdleAnimation';
 import { SettingsPage } from './pages/SettingsPage';
 import { AgentPage } from './pages/Agent.tsx';
-import type { Task, AppConfig, GenerationGroup } from './types';
+import type { Task, AppConfig, NewAppConfig, ModelInfo, GenerationGroup } from './types';
 
 // --- Components ---
 
@@ -48,7 +48,8 @@ function GeneratorPage({
   onImageClick,
   isEnhancing,
   onEnhance,
-  isDragging
+  isDragging,
+  availableModels
 }: any) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loadedTasks, setLoadedTasks] = useState<Set<string>>(new Set());
@@ -228,6 +229,40 @@ function GeneratorPage({
                         ))}
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* 模型选择 */}
+                <div className="mt-4">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block px-1">生图模型</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {availableModels?.length > 0 ? (
+                      availableModels.map((m: ModelInfo) => (
+                        <button
+                          key={m.id}
+                          onClick={() => setModel(m.id)}
+                          disabled={!m.enabled}
+                          className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${
+                            model === m.id
+                            ? 'bg-black dark:bg-white text-white dark:text-black'
+                            : m.enabled
+                              ? 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
+                              : 'bg-gray-100 dark:bg-white/5 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{m.name}</span>
+                            {m.provider !== 'gemini' && (
+                              <span className="text-[8px] opacity-60 px-1.5 py-0.5 bg-white/20 dark:bg-black/20 rounded">
+                                {m.provider}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="text-gray-400 text-xs">加载模型中...</div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -444,12 +479,13 @@ function AppContent() {
   const [model, setModel] = useState('gemini-3-pro-image');
   const [parallelCount, setParallelCount] = useState(4);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
-  const [config, setConfig] = useState<AppConfig | null>(null);
+  const [config, setConfig] = useState<NewAppConfig | null>(null);
   const [baseImages, setBaseImages] = useState<string[]>([]);
   const [isDark, setIsDark] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
   const location = useLocation();
 
   const dragCounter = useRef(0);
@@ -500,6 +536,7 @@ function AppContent() {
   useEffect(() => {
     fetchConfig();
     fetchHistory();
+    fetchAvailableModels();
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setIsDark(true);
     }
@@ -541,8 +578,38 @@ function AppContent() {
     try {
       const response = await axios.get('/api/config');
       setConfig(response.data);
+      // 设置默认模型
+      if (response.data.models?.default_model) {
+        setModel(response.data.models.default_model);
+      }
     } catch (error) {
       console.error('获取配置失败:', error);
+    }
+  };
+
+  const fetchAvailableModels = async () => {
+    try {
+      const response = await axios.get('/api/models');
+      setAvailableModels(response.data);
+      // 如果有模型，设置第一个为默认
+      if (response.data.length > 0 && model === 'gemini-3-pro-image') {
+        const defaultModel = response.data.find((m: ModelInfo) => m.enabled) || response.data[0];
+        setModel(defaultModel.id);
+      }
+    } catch (error) {
+      console.error('获取模型列表失败:', error);
+      // 使用默认模型列表
+      setAvailableModels([
+        {
+          id: 'gemini-3-pro-image',
+          name: 'Gemini 2.5 Pro Image',
+          description: 'Google Gemini 生图模型',
+          supported_sizes: ['1024x1024', '1280x720', '720x1280', '1216x896'],
+          capabilities: ['text-to-image', 'image-to-image'],
+          provider: 'gemini',
+          enabled: true
+        }
+      ]);
     }
   };
 
@@ -567,12 +634,12 @@ function AppContent() {
     }
   };
 
-  const handleUpdateConfig = async (newConfig: AppConfig) => {
+  const handleUpdateConfig = async (newConfig: NewAppConfig) => {
     try {
       await axios.post('/api/config', newConfig);
       setConfig(newConfig);
       setIsConfigOpen(false);
-      toast.success('配置已更新');
+      toast.success('配置已更新，重启后生效');
     } catch (error) {
       toast.error('更新配置失败');
     }
@@ -794,7 +861,7 @@ function AppContent() {
       <div className="flex-1 flex flex-col relative">
         <Routes>
           <Route path="/" element={
-            <GeneratorPage 
+            <GeneratorPage
               tasks={tasks}
               prompt={prompt}
               setPrompt={setPrompt}
@@ -813,6 +880,7 @@ function AppContent() {
               isEnhancing={isEnhancing}
               onEnhance={handleEnhance}
               isDragging={isDragging}
+              availableModels={availableModels}
             />
           } />
           <Route path="/history" element={<HistoryPage history={history} onClear={handleClearHistory} />} />
@@ -823,7 +891,7 @@ function AppContent() {
 
       {isConfigOpen && config && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="bg-white dark:bg-[#1d1d1f] rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-white/5"
@@ -834,8 +902,8 @@ function AppContent() {
                 <h2 className="text-lg font-black text-gray-800 dark:text-white tracking-tight leading-none">系统配置</h2>
                 <p className="text-[8px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">System Settings</p>
               </div>
-              <button 
-                onClick={() => setIsConfigOpen(false)} 
+              <button
+                onClick={() => setIsConfigOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-white/10 text-gray-400 transition-all"
               >
                 <X className="w-4 h-4" />
@@ -843,35 +911,99 @@ function AppContent() {
             </div>
             <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
-                <div className="group">
-                  <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">AI 代理端点</label>
-                  <input 
-                    type="text" 
-                    className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
-                    value={config.proxy_url}
-                    onChange={(e) => setConfig({...config, proxy_url: e.target.value})}
-                  />
+                {/* 多模型配置 */}
+                <div className="pt-2 border-b border-gray-100 dark:border-white/5 pb-4">
+                  <div className="flex items-center gap-1.5 mb-4 text-purple-500">
+                    <Layers className="w-3 h-3" />
+                    <h3 className="text-[9px] font-black uppercase tracking-[0.2em]">模型配置</h3>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="group">
+                      <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">Gemini API 端点</label>
+                      <input
+                        type="text"
+                        className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-purple-500 transition-all outline-none dark:text-white"
+                        value={config.models?.gemini?.api_endpoint || config.proxy_url || ''}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          models: {
+                            ...config.models,
+                            gemini: {
+                              ...config.models?.gemini,
+                              api_endpoint: e.target.value
+                            },
+                            default_model: config.models?.default_model || 'gemini-3-pro-image'
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div className="group">
+                      <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">Gemini API 密钥</label>
+                      <input
+                        type="password"
+                        className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-purple-500 transition-all outline-none dark:text-white"
+                        value={config.models?.gemini?.api_key || config.api_key || ''}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          models: {
+                            ...config.models,
+                            gemini: {
+                              ...config.models?.gemini,
+                              api_key: e.target.value
+                            },
+                            default_model: config.models?.default_model || 'gemini-3-pro-image'
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div className="group">
+                      <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">DALL-E API 密钥 (可选)</label>
+                      <input
+                        type="password"
+                        className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
+                        placeholder="sk-... (留空则不启用 DALL-E)"
+                        value={config.models?.dalle?.api_key || ''}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          models: {
+                            ...config.models,
+                            dalle: e.target.value ? {
+                              api_key: e.target.value,
+                              api_endpoint: config.models?.dalle?.api_endpoint || 'https://api.openai.com/v1',
+                              timeout_secs: config.models?.dalle?.timeout_secs || 120
+                            } : undefined,
+                            default_model: config.models?.default_model || 'gemini-3-pro-image'
+                          }
+                        })}
+                      />
+                    </div>
+                  </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">API 授权密钥</label>
-                    <input 
-                      type="password" 
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
-                      value={config.api_key}
-                      onChange={(e) => setConfig({...config, api_key: e.target.value})}
-                    />
-                  </div>
-                  <div>
                     <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">监听端口</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
                       value={config.port}
                       onChange={(e) => setConfig({...config, port: Number(e.target.value)})}
                     />
                   </div>
+                  <div>
+                    <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">存储路径</label>
+                    <input
+                      type="text"
+                      className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
+                      value={config.storage_path}
+                      onChange={(e) => setConfig({...config, storage_path: e.target.value})}
+                    />
+                  </div>
                 </div>
+
                 <div className="pt-4 border-t border-gray-100 dark:border-white/5">
                   <div className="flex items-center gap-1.5 mb-4 text-blue-500">
                     <Sliders className="w-3 h-3" />
@@ -880,8 +1012,8 @@ function AppContent() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">请求超时 (秒)</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
                         value={config.timeout}
                         onChange={(e) => setConfig({...config, timeout: Number(e.target.value)})}
@@ -889,8 +1021,8 @@ function AppContent() {
                     </div>
                     <div>
                       <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">最大重试</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
                         value={config.retry_limit}
                         onChange={(e) => setConfig({...config, retry_limit: Number(e.target.value)})}
@@ -901,13 +1033,13 @@ function AppContent() {
               </div>
             </div>
             <div className="px-6 py-5 bg-gray-50/50 dark:bg-white/5 flex justify-end gap-3 border-t border-gray-50 dark:border-white/5">
-              <button 
+              <button
                 onClick={() => setIsConfigOpen(false)}
                 className="px-4 py-2 text-[10px] font-black text-gray-400 hover:text-gray-600 transition-all"
               >
                 取消
               </button>
-              <button 
+              <button
                 onClick={() => handleUpdateConfig(config)}
                 className="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md hover:opacity-90 active:scale-95"
               >

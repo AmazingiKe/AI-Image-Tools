@@ -1,0 +1,20 @@
+{
+  "storage_path": "./storage",
+  "port": 3000,
+  "timeout": 300,
+  "retry_limit": 10,
+  "admin_token": "admin123",
+  "models": {
+    "gemini": {
+      "api_endpoint": "http://127.0.0.1:8045/v1",
+      "api_key": "sk-your-gemini-api-key",
+      "timeout_secs": 300
+    },
+    "dalle": {
+      "api_endpoint": "https://api.openai.com/v1",
+      "api_key": "sk-your-openai-api-key",
+      "timeout_secs": 120
+    },
+    "default_model": "gemini-3-pro-image"
+  }
+}

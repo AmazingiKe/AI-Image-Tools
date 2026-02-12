@@ -21,3 +21,7 @@ storage/
 *.log
 history.json
 .claude/
+
+# ReCode local database
+.recode
+docs/

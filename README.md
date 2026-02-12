@@ -31,14 +31,14 @@ Gemini-Image-Tools 是一个基于 OpenAI 协议标准构建的专业图像生�
 直接双击根目录下的 `start_all.bat`，脚本将自动编译并启动前后端服务。
 
 ### 手动运行
-1. **后端**:
+1. **服务端**:
    ```bash
-   cd backend
+   cd server
    cargo run --release
    ```
-2. **前端**:
+2. **客户端**:
    ```bash
-   cd frontend
+   cd client
    npm install
    npm run dev
    ```

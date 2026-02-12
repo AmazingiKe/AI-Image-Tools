@@ -93,7 +93,7 @@ async fn save_history(history: &[GenerationGroup]) -> std::io::Result<()> {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,gemini_drafting_backend=debug,tower_http=debug".into()))
+        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,gemini_drafting_server=debug,tower_http=debug".into()))
         .with(tracing_subscriber::fmt::layer())
         .init();
 

@@ -7,16 +7,16 @@ echo ==========================================
 echo Starting Gemini-Drafting-Factory...
 echo ==========================================
 
-:: Start Backend
-echo [1/2] Starting Backend (Rust Axum) in new window...
-start "Gemini-Backend" cmd /c "cd backend && cargo run"
+:: Start Server
+echo [1/2] Starting Server (Rust Axum) in new window...
+start "Gemini-Server" cmd /c "cd server && cargo run"
 
-:: Wait for backend to initialize
+:: Wait for server to initialize
 timeout /t 5 /nobreak > nul
 
-:: Start Frontend
-echo [2/2] Starting Frontend (Vite React) in new window...
-start "Gemini-Frontend" cmd /c "cd frontend && npm run dev"
+:: Start Client
+echo [2/2] Starting Client (Vite React) in new window...
+start "Gemini-Client" cmd /c "cd client && npm run dev"
 
 echo ==========================================
 echo All services started!

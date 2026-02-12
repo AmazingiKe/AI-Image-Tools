@@ -1,6 +1,6 @@
-# Gemini-Image-Tools (Gemini 绘图工作站)
+# AI-Image-Tools (AI 绘图工作站)
 
-Gemini-Image-Tools 是一个基于 OpenAI 协议标准构建的专业图像生成 Web 应用程序。它专为 **Gemini 3 Pro** 等图像生成模型设计，提供企业级的反向代理网关支持及卓越的用户交互体验。
+AI-Image-Tools 是一个基于 OpenAI 协议标准构建的专业图像生成 Web 应用程序。它专为各类 AI 图像生成模型（Gemini、Midjourney、Stable Diffusion 等）设计，提供企业级的反向代理网关支持及卓越的用户交互体验。
 
 ## 🌟 核心特性
 
@@ -46,7 +46,7 @@ Gemini-Image-Tools 是一个基于 OpenAI 协议标准构建的专业图像生�
 ## ⚙️ 配置说明
 
 首次启动后，可以通过前端右上角的 **"设置"** 面板进行高级配置：
-- **Primary Endpoint**: 您的 Gemini 代理地址 (例如 `http://127.0.0.1:8045/v1`)。
+- **Primary Endpoint**: 您的 AI 代理地址 (例如 `http://127.0.0.1:8045/v1`)。
 - **Advanced Control**: 设置单次请求超时（建议 300s）和最大重试策略。
 
 ## 📦 容器化部署
@@ -62,7 +62,7 @@ docker-compose up -d
 
 > **声明**：本项目白板功能仅参考了 [Jaaz](https://github.com/11cafe/jaaz) 的产品概念与交互设计思路，**代码架构完全独立重构**，未使用任何 Jaaz 源代码。技术栈差异如下：
 > - Jaaz: Excalidraw + Python/FastAPI + WebSocket
-> - 本项目: Tldraw + Rust/Axum + REST API
+> - 本项目: Tldraw + Rust/Axum + REST API + 多模型支持
 
 ### 功能特性：
 - **自由绘制**：支持画笔、形状、文字等多种绘图工具
@@ -82,4 +82,4 @@ docker-compose up -d
 
 ---
 
-**Gemini-Image-Tools** - 让创意捕捉更坚韧、更优雅。
+**AI-Image-Tools** - 让创意捕捉更坚韧、更优雅。

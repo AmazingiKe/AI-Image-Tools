@@ -34,7 +34,7 @@ pub struct GenerationGroup {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct Config {
-    gemini_proxy_url: String,
+    proxy_url: String,
     fallback_proxy_url: Option<String>,
     api_key: String,
     admin_token: String,
@@ -52,7 +52,7 @@ fn default_retries() -> usize { 10 }
 impl Default for Config {
     fn default() -> Self {
         Self {
-            gemini_proxy_url: "http://127.0.0.1:8045/v1".to_string(),
+            proxy_url: "http://127.0.0.1:8045/v1".to_string(),
             fallback_proxy_url: None,
             api_key: "sk-52036e30e0c2472e9e1f981bd23b8b0b".to_string(),
             admin_token: "admin123".to_string(),
@@ -93,7 +93,7 @@ async fn save_history(history: &[GenerationGroup]) -> std::io::Result<()> {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,gemini_drafting_server=debug,tower_http=debug".into()))
+        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,ai_image_tools=debug,tower_http=debug".into()))
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -142,7 +142,7 @@ async fn chat_completions(
 ) -> impl IntoResponse {
     let (url_str, api_key) = {
         let config = state.config.read().await;
-        (config.gemini_proxy_url.clone(), config.api_key.clone())
+        (config.proxy_url.clone(), config.api_key.clone())
     };
 
     let url = if url_str.contains("/v1") {
@@ -224,7 +224,7 @@ async fn enhance_prompt(
 ) -> impl IntoResponse {
     let (url_str, api_key) = {
         let config = state.config.read().await;
-        (config.gemini_proxy_url.clone(), config.api_key.clone())
+        (config.proxy_url.clone(), config.api_key.clone())
     };
 
     let url = if url_str.contains("/v1") {
@@ -339,7 +339,7 @@ async fn generate_image(
     let (proxy_url, fallback_url, api_key, storage_path, timeout, retry_limit) = {
         let config = state.config.read().await;
         (
-            config.gemini_proxy_url.clone(),
+            config.proxy_url.clone(),
             config.fallback_proxy_url.clone(),
             config.api_key.clone(),
             config.storage_path.clone(),

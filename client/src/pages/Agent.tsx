@@ -39,7 +39,7 @@ interface AgentPageProps {
 export function AgentPage({ isDark = false }: AgentPageProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'system', content: 'You are Gemini YOLO, a powerful AI assistant in YOLO Mode. You help users with creative tasks, brainstorming, and daring marketing ideas.' }
+    { role: 'system', content: 'You are an AI assistant in YOLO Mode. You help users with creative tasks, brainstorming, and daring marketing ideas.' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -510,7 +510,7 @@ export function AgentPage({ isDark = false }: AgentPageProps) {
   const clearHistory = () => {
     if (window.confirm('确定要清空对话记录吗？')) {
       setMessages([
-        { role: 'system', content: 'You are Gemini YOLO, a powerful AI assistant in YOLO Mode. You help users with creative tasks, brainstorming, and daring marketing ideas.' }
+        { role: 'system', content: 'You are an AI assistant in YOLO Mode. You help users with creative tasks, brainstorming, and daring marketing ideas.' }
       ]);
       if (editor) {
           editor.selectAll().deleteShapes(editor.getSelectedShapeIds());

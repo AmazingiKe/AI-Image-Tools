@@ -11,7 +11,7 @@ export interface Task {
 }
 
 export interface AppConfig {
-  gemini_proxy_url: string;
+  proxy_url: string;
   fallback_proxy_url: string | null;
   api_key: string;
   admin_token: string;

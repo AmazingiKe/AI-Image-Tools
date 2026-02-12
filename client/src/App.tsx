@@ -281,7 +281,7 @@ function GeneratorPage({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={onEnhance}
-              title="使用 Gemini-3-Flash 智能美化关键词"
+              title="使用 AI 智能美化关键词"
               disabled={!prompt.trim() || isEnhancing}
               className="p-3 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-all disabled:opacity-20 disabled:grayscale"
             >
@@ -584,7 +584,7 @@ function AppContent() {
     try {
       const response = await axios.post('/api/enhance-prompt', { prompt });
       setPrompt(response.data);
-      toast.success('已使用 Gemini-3-Flash 增强提示词');
+      toast.success('已使用 AI 增强提示词');
     } catch (error) {
       toast.error('增强提示词失败');
     } finally {
@@ -844,12 +844,12 @@ function AppContent() {
             <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <div className="group">
-                  <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">Gemini 代理端点</label>
+                  <label className="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5 px-1">AI 代理端点</label>
                   <input 
                     type="text" 
                     className="w-full bg-gray-50 dark:bg-black/40 border border-transparent rounded-xl px-4 py-2 text-xs font-bold focus:bg-white dark:focus:bg-black focus:border-blue-500 transition-all outline-none dark:text-white"
-                    value={config.gemini_proxy_url}
-                    onChange={(e) => setConfig({...config, gemini_proxy_url: e.target.value})}
+                    value={config.proxy_url}
+                    onChange={(e) => setConfig({...config, proxy_url: e.target.value})}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">

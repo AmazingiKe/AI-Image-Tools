@@ -1,5 +1,5 @@
 {
-  "gemini_proxy_url": "http://127.0.0.1:8045/v1",
+  "proxy_url": "http://127.0.0.1:8045/v1",
   "fallback_proxy_url": null,
   "api_key": "sk-52036e30e0c2472e9e1f981bd23b8b0b",
   "admin_token": "admin123",

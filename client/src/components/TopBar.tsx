@@ -45,7 +45,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <ImageIcon className="text-white dark:text-black w-3.5 h-3.5" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold tracking-tight text-[12px] text-black dark:text-white leading-tight">Gemini Image Tools</span>
+            <span className="font-bold tracking-tight text-[12px] text-black dark:text-white leading-tight">AI Image Tools</span>
             <span className="text-[7px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] leading-none mt-0.5">Beta v0.5.0</span>
           </div>
         </Link>

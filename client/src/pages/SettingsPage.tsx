@@ -78,15 +78,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ config, onUpdateConf
                 <Globe className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div className="flex-1">
-                <div className="text-[14px] font-bold text-black dark:text-white">Gemini 代理端点</div>
+                <div className="text-[14px] font-bold text-black dark:text-white">AI 代理端点</div>
                 <div className="text-[11px] text-gray-400 mt-0.5 font-medium">指定图片生成的 API 转发地址</div>
               </div>
               <input
                 type="text"
                 placeholder="https://..."
                 className="w-1/2 bg-gray-100/50 dark:bg-white/5 border-2 border-transparent rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:border-gray-500/20 focus:bg-white dark:focus:bg-black transition-all outline-none text-right dark:text-gray-200"
-                value={localConfig.gemini_proxy_url}
-                onChange={(e) => setLocalConfig({...localConfig, gemini_proxy_url: e.target.value})}
+                value={localConfig.proxy_url}
+                onChange={(e) => setLocalConfig({...localConfig, proxy_url: e.target.value})}
               />
             </div>
             {/* Row 2 */}
